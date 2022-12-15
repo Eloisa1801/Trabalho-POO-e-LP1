@@ -1,6 +1,13 @@
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 public class Tree {
   Node root = null;
+  private Connection conectarbd = null;
 
   public void inserir(int info, Node node) {
     if (node == null) {
@@ -122,7 +129,7 @@ public class Tree {
     System.out.println(node.info);
   }
 
-  // remover Node
+  // --------- remover Node
 
   private Node maiorValor(Node node) {
     while (node.dir != null) {
@@ -171,6 +178,45 @@ public class Tree {
     }
 
     return node;
+  }
+
+  // inserindo no BD
+
+  /**
+   * @param info
+   * @throws SQLException
+   */
+  public void inserir_banco(int info) throws SQLException {
+
+    this.conectarbd = ConnectionFactory.createConnection();
+    String noSQL = "INSERT INTO tree (node) VALUES (?)";
+    try {
+      PreparedStatement ps = conectarbd.prepareStatement(noSQL);
+      ps.setInt(1, info);
+      ps.executeUpdate();
+      System.out.println("num inserido");
+    } catch (SQLException e) {
+      System.out.println(e);
+    }
+  }
+
+  public void buscar_banco(Tree tree) {
+    String arvore = "SELECT * FROM tree";
+    ArrayList<Integer> busca_num = new ArrayList<>();
+
+    try {
+      PreparedStatement ps = this.conectarbd.prepareStatement(arvore);
+      ResultSet rs = ps.executeQuery();
+      for (int i = 0; i < busca_num.size(); i++) {
+        busca_num.add(rs.getInt("node"));
+      }
+      for (int i = 0; i < busca_num.size(); i++) {
+        tree.inserir(i, root);
+      }
+      int num = busca_num.get(1);
+    } catch (SQLException e) {
+      System.out.println(e);
+    }
   }
 
   // -----------------------------------
